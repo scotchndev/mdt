@@ -1,8 +1,3 @@
-ALTER TABLE `players` ADD (
-	`id` int(11) NOT NULL AUTO_INCREMENT,
-	UNIQUE KEY (`id`)
-);
-
 CREATE TABLE `user_mdt` (
 	`id` int(11) NOT NULL AUTO_INCREMENT,
 	`char_id` int(11) DEFAULT NULL,
