@@ -3,7 +3,6 @@
 fx_version 'adamant'
 game 'gta5'
 
-
 ui_page "ui/index.html"
 
 files {
@@ -18,10 +17,9 @@ files {
 }
 
 server_scripts {
-    '@async/async.lua',
-    '@mysql-async/lib/MySQL.lua',
     "sv_mdt.lua",
     "sv_vehcolors.lua"
 }
 
 client_script "cl_mdt.lua"
+shared_script '@qb-core/import.lua'

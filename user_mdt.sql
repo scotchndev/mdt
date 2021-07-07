@@ -1,4 +1,4 @@
-ALTER TABLE `users` ADD (
+ALTER TABLE `players` ADD (
 	`id` int(11) NOT NULL AUTO_INCREMENT,
 	UNIQUE KEY (`id`)
 );
