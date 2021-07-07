@@ -1,8 +1,3 @@
-QBCore = nil
-
-TriggerEvent("QBCore:GetObject", function(obj) QBCore = obj end)
-
-
 local call_index = 0
 
 RegisterServerEvent("mdt:hotKeyOpen")
