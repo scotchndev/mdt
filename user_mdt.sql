@@ -1,6 +1,6 @@
 CREATE TABLE `user_mdt` (
 	`id` int(11) NOT NULL AUTO_INCREMENT,
-	`char_id` int(11) DEFAULT NULL,
+	`citizenid` varchar(11) DEFAULT NULL,
 	`notes` varchar(255) DEFAULT NULL,
 	`mugshot_url` varchar(255) DEFAULT NULL,
 	`bail` bit DEFAULT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE `vehicle_mdt` (
 
 CREATE TABLE `user_convictions` (
 	`id` int(11) NOT NULL AUTO_INCREMENT,
-	`char_id` int(11) DEFAULT NULL,
+	`citizenid` varchar(11) DEFAULT NULL,
 	`offense` varchar(255) DEFAULT NULL,
 	`count` int(11) DEFAULT NULL,
 	
@@ -28,7 +28,7 @@ CREATE TABLE `user_convictions` (
 
 CREATE TABLE `mdt_reports` (
 	`id` int(11) NOT NULL AUTO_INCREMENT,
-	`char_id` int(11) DEFAULT NULL,
+	`citizenid` varchar(11) DEFAULT NULL,
 	`title` varchar(255) DEFAULT NULL,
 	`incident` longtext DEFAULT NULL,
     `charges` longtext DEFAULT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE `mdt_reports` (
 CREATE TABLE `mdt_warrants` (
 	`id` int(11) NOT NULL AUTO_INCREMENT,
 	`name` varchar(255) DEFAULT NULL,
-	`char_id` int(11) DEFAULT NULL,
+	`citizenid` varchar(11) DEFAULT NULL,
 	`report_id` int(11) DEFAULT NULL,
 	`report_title` varchar(255) DEFAULT NULL,
 	`charges` longtext DEFAULT NULL,
