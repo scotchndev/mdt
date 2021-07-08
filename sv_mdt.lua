@@ -135,83 +135,88 @@ AddEventHandler("mdt:getOffenderDetails", function(offender)
     end)
 end)
 
---[[ RegisterServerEvent("mdt:getOffenderDetailsById")
+RegisterServerEvent("mdt:getOffenderDetailsById")
 AddEventHandler("mdt:getOffenderDetailsById", function(char_id)
-	local usource = source
-
-	local result = exports['ghmattimysql']:execute('SELECT * FROM `players` WHERE `id` = @id', {
+    local usource = source
+    exports['ghmattimysql']:execute('SELECT * FROM `players` WHERE `id` = @id', {
 		['@id'] = char_id
-	})
-	local offender = result[1]
+	}, function(result)
+		local charinfo = json.decode(result[1].charinfo)
+        local offender = result[1]
 
-	if not offender then
-		TriggerClientEvent("mdt:closeModal", usource)
-		TriggerClientEvent("mdt:sendNotification", usource, "This person no longer exists.")
-		return
-	end
+        if not offender then
+            TriggerClientEvent("mdt:closeModal", usource)
+            TriggerClientEvent("mdt:sendNotification", usource, "This person no longer exists.")
+            return
+        end
+    
+        GetLicenses(offender.citizenid, function(licenses) offender.licenses = licenses end)
+        while offender.licenses == nil do Citizen.Wait(0) end
 
-	GetLicenses(offender.identifier, function(licenses) offender.licenses = licenses end)
-	while offender.licenses == nil do Citizen.Wait(0) end
+        exports['ghmattimysql']:execute('SELECT * FROM `user_mdt` WHERE `char_id` = @id', {
+            ['@id'] = offender.id
+        }, function(result)
 
-	local result = exports['ghmattimysql']:execute('SELECT * FROM `user_mdt` WHERE `char_id` = @id', {
-		['@id'] = offender.id
-	})
-	offender.notes = ""
-	offender.mugshot_url = ""
-	offender.bail = false
-	if result[1] then
-		offender.notes = result[1].notes
-		offender.mugshot_url = result[1].mugshot_url
-		offender.bail = result[1].bail
-	end
+            offender.notes = ""
+            offender.mugshot_url = ""
+            offender.bail = false
+            if result[1] then
+                offender.notes = result[1].notes
+                offender.mugshot_url = result[1].mugshot_url
+                offender.bail = result[1].bail
+            end
 
-	local convictions = exports['ghmattimysql']:execute('SELECT * FROM `user_convictions` WHERE `char_id` = @id', {
-		['@id'] = offender.id
-	}) 
-	if convictions[1] then
-		offender.convictions = {}
-		for i = 1, #convictions do
-			local conviction = convictions[i]
-			offender.convictions[conviction.offense] = conviction.count
-		end
-	end
+            exports['ghmattimysql']:execute('SELECT * FROM `user_convictions` WHERE `char_id` = @id', {
+                ['@id'] = offender.id
+            }, function(convictions) 
 
-	local warrants = exports['ghmattimysql']:execute('SELECT * FROM `mdt_warrants` WHERE `char_id` = @id', {
-		['@id'] = offender.id
-	})
-	if warrants[1] then
-		offender.haswarrant = true
-	end
+                if convictions[1] then
+                    offender.convictions = {}
+                    for i = 1, #convictions do
+                        local conviction = convictions[i]
+                        offender.convictions[conviction.offense] = conviction.count
+                    end
+                end
 
-	local phone_number = exports['ghmattimysql']:execute('SELECT `phone_number` FROM `users` WHERE `identifier` = @identifier', {
-		['@identifier'] = offender.identifier
-	})
-	offender.phone_number = phone_number[1].phone_number
+                exports['ghmattimysql']:execute('SELECT * FROM `mdt_warrants` WHERE `char_id` = @id', {
+                    ['@id'] = offender.id
+                }, function(warrants)
+                    
+                    if warrants[1] then
+                        offender.haswarrant = true
+                    end
 
-	local vehicles = exports['ghmattimysql']:execute('SELECT * FROM `owned_vehicles` WHERE `owner` = @identifier', {
-		['@identifier'] = offender.identifier
-	})
-	for i = 1, #vehicles do
-		vehicles[i].state, vehicles[i].stored, vehicles[i].job, vehicles[i].fourrieremecano, vehicles[i].vehiclename, vehicles[i].ownerName = nil
-		vehicles[i].vehicle = json.decode(vehicles[i].vehicle)
-		vehicles[i].model = vehicles[i].vehicle.model
-		if vehicles[i].vehicle.color1 then
-			if colors[tostring(vehicles[i].vehicle.color2)] and colors[tostring(vehicles[i].vehicle.color1)] then
-				vehicles[i].color = colors[tostring(vehicles[i].vehicle.color2)] .. " on " .. colors[tostring(vehicles[i].vehicle.color1)]
-			elseif colors[tostring(vehicles[i].vehicle.color1)] then
-				vehicles[i].color = colors[tostring(vehicles[i].vehicle.color1)]
-			elseif colors[tostring(vehicles[i].vehicle.color2)] then
-				vehicles[i].color = colors[tostring(vehicles[i].vehicle.color2)]
-			else
-				vehicles[i].color = "Unknown"
-			end
-		end
-		vehicles[i].vehicle = nil
-	end
-	offender.vehicles = vehicles
-
-	TriggerClientEvent("mdt:returnOffenderDetails", usource, offender)
-end) ]]
+                    exports['ghmattimysql']:execute('SELECT * FROM `player_vehicles` WHERE `citizenid` = @citizenid', {
+                        ['@citizenid'] = offender.citizenid
+                    }, function(vehicles)
+                        for i = 1, #vehicles do
+                            vehicles[i].model = vehicles[i].vehicle
+                            if vehicles[i].mods then
+                                local vehmods = json.decode(vehicles[i].mods)
+                                if colors[tostring(vehmods.color2)] and colors[tostring(vehmods.color1)] then
+                                    vehicles[i].color = colors[tostring(vehmods.color2)] .. " on " .. colors[tostring(vehmods.color1)]
+                                elseif colors[tostring(vehmods.color1)] then
+                                    vehicles[i].color = colors[tostring(vehmods.color1)]
+                                elseif colors[tostring(vehmods.color2)] then
+                                    vehicles[i].color = colors[tostring(vehmods.color2)]
+                                else
+                                    vehicles[i].color = "Unknown"
+                                end
+                            end
+                            vehicles[i].vehicle = nil
+                        end
+                        offender.vehicles = vehicles
+						offender.firstname = charinfo.firstname
+						offender.lastname = charinfo.lastname
+                        offender.phone_number = charinfo.phone
+                        offender.dateofbirth = charinfo.birthdate
+                        TriggerClientEvent("mdt:returnOffenderDetails", usource, offender)
+                    end)
+                end)
+            end)
+        end)
+    end)
+end)
 
 RegisterServerEvent("mdt:saveOffenderChanges")
 AddEventHandler("mdt:saveOffenderChanges", function(id, changes, identifier)
