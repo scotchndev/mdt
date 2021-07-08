@@ -492,7 +492,7 @@ AddEventHandler("mdt:getReportDetailsById", function(query, _source)
 	if _source then source = _source end
 	local usource = source
 	exports['ghmattimysql']:execute("SELECT * FROM `mdt_reports` WHERE `id` = @query", {
-		['@query'] = query.insertId
+		['@query'] = query
 	}, function(result)
 		if result and result[1] then
 			result[1].charges = json.decode(result[1].charges)
