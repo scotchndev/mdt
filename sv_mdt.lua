@@ -395,7 +395,7 @@ end)
 RegisterServerEvent("mdt:getVehicle")
 AddEventHandler("mdt:getVehicle", function(vehicle)
 	local usource = source
-    exports['ghmattimysql']:execute("SELECT `charinfo` FROM `players` WHERE `citizenid` = @query", {
+    exports['ghmattimysql']:execute("SELECT * FROM `players` WHERE `citizenid` = @query", {
 		['@query'] = vehicle.citizenid
 	}, function(result)
 
