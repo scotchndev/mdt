@@ -1,4 +1,5 @@
-CREATE  TABLE IF NOT EXISTS `user_mdt` (
+-- if exists, continue without error and complete query
+CREATE TABLE IF NOT EXISTS `user_mdt` (
 	`id` int(11) NOT NULL AUTO_INCREMENT,
 	`char_id` int(11) DEFAULT NULL,
 	`notes` varchar(255) DEFAULT NULL,
@@ -64,11 +65,12 @@ CREATE TABLE IF NOT EXISTS `fine_types` (
        PRIMARY KEY (`id`)
 );
 
--- If you dont truncate youre going to end up with errors or duplicate fine labels
--- TODO: implement unique uuids for fines so that truncate is no longer needed
+-- If you dont truncate you end up with errors or duplicate fine labels
+-- TODO: implement/Discuss unique uuids for fines so that truncate is no longer needed
 TRUNCATE TABLE `fine_types`;
 
--- id is an autoincrement field, there is no need to predefine them. especially if theyre in order anyway
+-- removed unneeded references to id 
+-- id is an autoincrement field, no need to predefine or even mention
 INSERT INTO `fine_types` (`label`, `amount`, `category`, `jailtime`) VALUES
 ('Murder', 25000, 0, 0),
 ('Involuntary Manslaughter', 10000, 0, 120),
